@@ -5,7 +5,7 @@ comments: false
 draft: true
 ---
 
-A lot has been [said](figure out this footnote link) and [written] (https://aras-p.info/blog/2018/12/28/Modern-C-Lamentations/)  lately about the game industry's "C++ is not changing into the thing we need" feelings. Valid criticism on various things that make C++ not a great language for games (or at all), and [valid counter criticism](https://medium.com/@pat_wilson/get-your-shit-together-6ccbfd6bb755) of "well why dont you guys participate in the open-for-everyone process of designing C++ instead of bitching from the sidelines".
+A lot has been [said] (https://youtu.be/rX0ItVEVjHc) and [written] (https://aras-p.info/blog/2018/12/28/Modern-C-Lamentations/)  lately about the game industry's "C++ is not changing into the thing we need" feelings. Valid criticism on various things that make C++ not a great language for games (or at all), and [valid counter criticism](https://medium.com/@pat_wilson/get-your-shit-together-6ccbfd6bb755) of "well why dont you guys participate in the open-for-everyone process of designing C++ instead of bitching from the sidelines".
 
 Let's talk about the place C++ will have at Unity:
 
@@ -51,19 +51,19 @@ On top of that the standard library is oriented around "objects on the heap", an
 
 That said, if we give up on the most of the standard library, (bye Linq, StringFormatter, List<T>, Dictionary), disallow allocations (=no classes, only structs), no garbage collector, dissalow virtual calls and non-constrained interface invocations, and add a few new containers that you are allowed to use (NativeArray<T> and friends) the remaining pieces of the C# language are looking really good. Remember this is only for your performance critical code. Here's an example from our [mega city demo](https://www.youtube.com/watch?v=j4rWfPyf-hk):
 
-<script src="https://gist.github.com/lucasmeijer/bb5ba6a73340566e9b7273a541d191de.js"></script>
+{{< gist lucasmeijer bb5ba6a73340566e9b7273a541d191de >}}
 
 This subset lets us comfortably do everything we need in our hot loops. Because it's a valid subset of C#, we can also run it as regular C# getting errors on out of bounds access, great error messages, debugger support and compilation speeds you forgot were possible when working in C++. We often refer to this subset as HighPerformanceC#, HPC#
 
 ## Where are we today?
 
-We've built this code generator / compiler, and it's called Burst. It ships with Unity2018.3. We have a lot of work ahead, but we're already happy with it today. Performance is often better than C++, but comparing performance is not exactly the right thing to do. What matters is what you had to do to get that performance. Example: we took the c++ culling code of our current c++ renderer and ported it to Burst. Performance was the same, but the C++ version had to do incredible gymnastics to convince our c++ compilers to actually vectorize. The Burst version was about 4x smaller, running slightly faster.
+We've built this code generator / compiler, and it's called Burst. It ships with Unity2018.3. We have a lot of work ahead, but we're already happy with it today. Performance is often better than C++, but comparing performance is not exactly the right thing to do. What matters is what you had to do to get that performance. Example: we took the c++ culling code of our current c++ renderer and ported it to Burst. Performance was the same, but the C++ version had to do incredible gymnastics to convince our c++ compilers to actually vectorize. The Burst version was about 4x smaller, running slightly faster. Today there's also still cases where a burst version does not yet match the c++ version in speed. We consider those performance bugs that we're confident we can resolve.
 
-To be honest, the whole "you should move your most performance critical code to C#" story also didn't result in everybody internally at Unity immediately buying it. For most of us it feels like "you're closer to the metal" when you use C++. But it's not true anymore. When we use C# we have complete control over the entire process from source compilation down to machine code generation, and if there's something we don't like, we just go in and fix it. No comittee to convince of the value of our usecase, or other concerns to be balanced against.
+To be honest, the whole "you should move your most performance critical code to C#" story also didn't result in everybody internally at Unity immediately buying it. For most of us it feels like "you're closer to the metal" when you use C++. But that won't be true for much longer. When we use C# we have complete control over the entire process from source compilation down to machine code generation, and if there's something we don't like, we just go in and fix it. No comittee to convince of the value of our usecase, or other concerns to be balanced against.
 
 We will slowly but surely port every piece of performance critical code that we have in C++ to HPC#. It's easier to get the performance we want, harder to write bugs, and easier to work with.
 
-Unity has a lot of different users. Some can enumerate the entire arm64 instruction set from memory, others are happy to create things before getting a PhD in computer science.
+Unity has a lot of different users. Some can enumerate the entire arm64 instruction set from memory, others are happy to create things without getting a PhD in computer science.
 
 Both examples of users benefit as the parts of their frametime that is spent running engine code (usually 90%+) get faster. The parts that are running asset store package runtime code gets faster as vendors adopt HPC#.
 
@@ -99,19 +99,18 @@ If you schedule a job that violates these rules, you get a runtime error _every 
 We find this safety mechanism catches a _lot_ of bugs before they get committed,
 resulting in efficient use of all cores. It becomes impossible to code a deadlock or a race condition. Results are guaranteed to be deterministic regardless of how many threads are running, or how many time a thread gets interrupted by some other process.
 
-## Controlling the whole stack
+## Hacking the whole stack
 
-By having control over all these components we can get  benefits by making them be aware of eachother. 
+By having control over all these components we can get benefits by making them be aware of eachother. 
 For example, a common case for a vectorization not happening, is that the compiler cannot guarantee that two pointers do not point to the same memory (aliasing). We know two NativeArray's will never alias, because we wrote the collection library, and we can use that knowledge in Burst, so it won't have to give up on an optimization because it's afraid two array pointers might point to the same memory.
 
 Similarly, we wrote the [Unity.Mathmetics](https://github.com/Unity-Technologies/Unity.Mathematics) math library. Burst has intimite knowledge of it. It will (in the future) be able to do accuracy sacrificing optimizations for things like math.sin(). Because to Burst math.sin() is not just any C# method to compile, it will understand the trigonometric properties of sin(), understand that sin(x) == x for small values of x (which Burst might be able to prove), understand it can be replaced by a taylor series expansion for a certain accuracy sacrifice.
 
 ## Distinction between engine code and game code dissapears
 
-By writing Unity's runtime code in HPC#, the "engine" and the game are written
+By writing Unity's runtime code in HPC#, the engine and the game are written
 in the same language. Runtime systems that we have converted to HPC#, we will distribute as source. Everyone will be able to learn from them, improve them, tailor them. We'll have a level playing field, where nothing is stopping users from writing a better particle system / physics system / renderer than we write.
-I expect many people will ([here's a user writing a physics engine](https://forum.unity.com/threads/sources-available-physics-in-pure-ecs.531716/) completely in user code, before we ship a HPC# physics engine). By having our internal development process be much more like our users development process, we'll also feel our users pain more directly,
-and we can focus all our efforts into improving a single workflow, instead of two different ones.
+I expect many people will ([here's a user writing a physics engine](https://forum.unity.com/threads/sources-available-physics-in-pure-ecs.531716/) completely in user code, before we ship a HPC# physics engine). By having our internal development process be much more like our users development process, we'll also feel our users pain more directly, and we can focus all our efforts into improving a single workflow, instead of two different ones.
 
 ## Join us
 
@@ -120,7 +119,8 @@ Many game industry veterans (and non veterans) are unhappy with the status quo a
 [@xoofx](https://www.twitter.com/xoofx), 
 [@deplinenoise](https://www.twitter.com/deplinenoise), 
 [@icetigris](https://www.twitter.com/icetigris), 
-[@macton](https://www.twitter.com/macton), 
+[@vvuk](https://www.twitter.com/vvuk),
+[@macton](https://www.twitter.com/macton),
 [@vengefularia](https://www.twitter.com/vengefularia),
 [@bmcnett](https://www.twitter.com/bmcnett)). If changing the status quo in langauge tools for game development is something you would also love to work on, we'd love to hear from you. Ping me [@lucasmeijer](https://www.twitter.com/lucasmeijer) or Mike Acton [@macton](https://www.twitter.com/macton) if you're interested.
 
@@ -130,7 +130,5 @@ There are no comments on this website, but you can say hi on twitter [@lucasmeij
 
 
 Footnotes:
-
-- Mike Acton did [a CppCon keynote](https://youtu.be/rX0ItVEVjHc) that does a good job of illustrating the gap between what game programmers need and what C++ offers: 
 
 - [Jonathan Blow](https://www.twitter.com/Jonathan_Blow) is working on a interesting language + compiler called Jai, sharing some motivation with unity: if I'm going to spend another 20 years making games, let's make sure we do it with tools I love using.
