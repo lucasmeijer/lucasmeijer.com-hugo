@@ -2,7 +2,6 @@
 title: "C++, C# and Unity"  
 date: 2019-01-03T01:33:37+01:00
 comments: false
-draft: true
 ---
 
 A lot has been [said] (https://youtu.be/rX0ItVEVjHc) and [written] (https://aras-p.info/blog/2018/12/28/Modern-C-Lamentations/)  lately about the game industry's "C++ is not changing into the thing we need" feelings. Valid criticism on various things that make C++ not a great language for games (or at all), and [valid counter criticism](https://medium.com/@pat_wilson/get-your-shit-together-6ccbfd6bb755) of "well why dont you guys participate in the open-for-everyone process of designing C++ instead of bitching from the sidelines".
@@ -43,13 +42,13 @@ Yes. C# is a very natural choice that comes with a lot of nice benefits for Unit
 - It's the language our users already use today
 - Has [great](https://www.jetbrains.com/rider) IDE [tooling] (https://visualstudio.microsoft.com/) (both editing/refactoring as well as debugging) that C++ programmers often have no idea even was possible. (should do a follow up post on this one day)
 - A C#->intermediate IL compiler already exists (the [Roslyn](https://github.com/dotnet/roslyn) C# compiler from microsoft), and we can just use it instead of having to write our own.
-- We have a lot of experience modifying intermediate-IL, so it's easy to do codegen and postprocessing on the actual program
+- We have a lot of experience [modifying intermediate-IL](https://github.com/jbevain/cecil), so it's easy to do codegen and postprocessing on the actual program
 
 I quite enjoy writing code in C# myself. However, traditional C# as a whole is not an amazing language when it comes to performance. While the C# language team, standard library team, and runtime team have been making great progress in the last two years, we're still looking at a language where you have no control over where/how your data is laid out in memory, while that is exactly what we need.
 
 On top of that the standard library is oriented around "objects on the heap", and "objects having pointer references to other objects".
 
-That said, if we give up on the most of the standard library, (bye Linq, StringFormatter, List<T>, Dictionary), disallow allocations (=no classes, only structs), no garbage collector, dissalow virtual calls and non-constrained interface invocations, and add a few new containers that you are allowed to use (NativeArray<T> and friends) the remaining pieces of the C# language are looking really good. Remember this is only for your performance critical code. Here's an example from our [mega city demo](https://www.youtube.com/watch?v=j4rWfPyf-hk):
+That said, if we give up on the most of the standard library, (bye Linq, StringFormatter, List, Dictionary), disallow allocations (=no classes, only structs), no garbage collector, dissalow virtual calls and non-constrained interface invocations, and add a few new containers that you are allowed to use (NativeArray and friends) the remaining pieces of the C# language are looking really good. Remember this is only for your performance critical code. Here's an example from our [mega city demo](https://www.youtube.com/watch?v=j4rWfPyf-hk):
 
 {{< gist lucasmeijer bb5ba6a73340566e9b7273a541d191de >}}
 
@@ -57,54 +56,56 @@ This subset lets us comfortably do everything we need in our hot loops. Because 
 
 ## Where are we today?
 
-We've built this code generator / compiler, and it's called Burst. It ships with Unity2018.3. We have a lot of work ahead, but we're already happy with it today. Performance is often better than C++, but comparing performance is not exactly the right thing to do. What matters is what you had to do to get that performance. Example: we took the c++ culling code of our current c++ renderer and ported it to Burst. Performance was the same, but the C++ version had to do incredible gymnastics to convince our c++ compilers to actually vectorize. The Burst version was about 4x smaller, running slightly faster. Today there's also still cases where a burst version does not yet match the c++ version in speed. We consider those performance bugs that we're confident we can resolve.
+We've built this code generator / compiler, and it's called Burst. It ships with Unity2018.3. We have a lot of work ahead, but we're already happy with it today. 
+
+We're sometimes faster than C++, also still sometimes slower than C++. The latter case we consider performance bugs we're confident we can resolve.
+
+Only comparing performance is not enough though. What matters equally is what you had to do to get that performance. Example: we took the c++ culling code of our current c++ renderer and ported it to Burst. Performance was the same, but the C++ version had to do incredible gymnastics to convince our c++ compilers to actually vectorize. The Burst version was about 4x smaller.
 
 To be honest, the whole "you should move your most performance critical code to C#" story also didn't result in everybody internally at Unity immediately buying it. For most of us it feels like "you're closer to the metal" when you use C++. But that won't be true for much longer. When we use C# we have complete control over the entire process from source compilation down to machine code generation, and if there's something we don't like, we just go in and fix it. No comittee to convince of the value of our usecase, or other concerns to be balanced against.
 
 We will slowly but surely port every piece of performance critical code that we have in C++ to HPC#. It's easier to get the performance we want, harder to write bugs, and easier to work with.
 
-Unity has a lot of different users. Some can enumerate the entire arm64 instruction set from memory, others are happy to create things without getting a PhD in computer science.
-
-Both examples of users benefit as the parts of their frametime that is spent running engine code (usually 90%+) get faster. The parts that are running asset store package runtime code gets faster as vendors adopt HPC#.
-
-Advanced users will benefit ontop of that by being able to also write their own high performance code in HPC#.
-
 Here's a screenshot of Burst Inspector, allowing you to easily see what assembly instructions were generated for your different burst hotloops:
 
 [<img src="../../images/burst-inspector.png"/>](../../images/burst-inspector.png)
 
+Unity has a lot of different users. Some can enumerate the entire arm64 instruction set from memory, others are happy to create things without getting a PhD in computer science.
+
+Both examples of users benefit as the parts of their frametime that is spent running engine code (usually 90%+) get faster. The parts that are running asset store package runtime code gets faster as asset store package authors adopt HPC#.
+
+Advanced users will benefit ontop of that by being able to also write their own high performance code in HPC#.
+
 ## Optimization Granularity
 
-In a typical C++ project setup, it is very hard to ask the compiler to make different optimization tradeoffs for different parts of your program. The best you have is per file granularity on specifying optimization level. This maps poorly to what we want in games. I have a function that has a hot loop, and I want that hot loop _and everything it calls_ to be as optimized as possible. "everything it calls" will be spread out over many different files.
+In a typical C++ project setup, it is very hard to ask the compiler to make different optimization tradeoffs for different parts of your program. The best you have is per file granularity on specifying optimization level. This maps poorly to what we want. I have a function that is a hot loop, and I want that hot loop _and everything it calls_ to be as optimized as possible. "everything it calls" will be spread out over many different files.
 
 Burst is designed to take as input not your entire program, but a single method in that program: the entrypoint to a hot loop. It will compile that function and everything that it invokes (which is guaranteed to be known: we don't allow virtual functions or function pointers).
 
-Because Burst only operates on a relatively small part of the program, we set optimization level to 11. Burst inlines pretty much everything, making it possible to remove if checks that otherwise would not be removed (because in inlined form we have more information about the arguments of the function).
+Because Burst only operates on a relatively small part of the program, we set optimization level to 11. Burst inlines pretty much every callsite, making it possible to remove if checks that otherwise would not be removed (because in inlined form we have more information about the arguments of the function).
 
 ## Help with common multi threading problems
 
 C++ (nor C#) doesn't do much to help developers to write thread safe code.
 
-Even today, more than a decade since game consumer hardware has >1 cpu, it is very hard to write programs that use multiple core's effectively.
+Even today, more than a decade since game consumer hardware has >1 core, it is very hard to write programs that use multiple core's effectively.
 
-Data races, indeterminism and deadlocks are all challenges that make shipping multi threading code difficult. What we want is features like "make sure that this function and everything that it calls never read or write global state". We want violations of that rule to be compiler errors, not "guidelines we hope all programmers adhere to". Burst gives a compiler error.
+Data races, nondeterminism and deadlocks are all challenges that make shipping multi threading code difficult. What we want is features like "make sure that this function and everything that it calls never read or write global state". We want violations of that rule to be compiler errors, not "guidelines we hope all programmers adhere to". Burst gives a compiler error.
 
 We encourage users (and ourselves) to write "jobified" code: splitting up all
-data transformations that need to be happen in jobs. Each job is "functional", as in side-effect free. It explicitely specifies its readonly buffers and read/write buffers it operates on. Any other attempt to access other data results in a compiler error.
+data transformations that need to happen in jobs. Each job is "functional", as in side-effect free. It explicitely specifies its readonly buffers and read/write buffers it operates on. Any other attempt to access other data results in a compiler error.
 
 The job scheduler will guarantee that nobody is writing to your readonly buffer while your job is running. And we'll guarantee that nobody is reading from your read/write buffer while your job is running.
 
 If you schedule a job that violates these rules, you get a runtime error _every time_. Not just in your unlucky race condition case. The error message will explain that you're trying to schedule a job that wants to read from buffer A, but that you already scheduled a job before that will write to A, so if you want to do this, you need to specify that previous job as a dependency.
 
-We find this safety mechanism catches a _lot_ of bugs before they get committed,
-resulting in efficient use of all cores. It becomes impossible to code a deadlock or a race condition. Results are guaranteed to be deterministic regardless of how many threads are running, or how many time a thread gets interrupted by some other process.
+We find this safety mechanism catches a _lot_ of bugs before they get committed and results in efficient use of all cores. It becomes impossible to code a deadlock or a race condition. Results are guaranteed to be deterministic regardless of how many threads are running, or how many time a thread gets interrupted by some other process.
 
 ## Hacking the whole stack
 
-By having control over all these components we can get benefits by making them be aware of eachother. 
-For example, a common case for a vectorization not happening, is that the compiler cannot guarantee that two pointers do not point to the same memory (aliasing). We know two NativeArray's will never alias, because we wrote the collection library, and we can use that knowledge in Burst, so it won't have to give up on an optimization because it's afraid two array pointers might point to the same memory.
+By being able to hack on all these components we get benefits by making them be aware of eachother. For example, a common case for a vectorization not happening, is that the compiler cannot guarantee that two pointers do not point to the same memory (aliasing). We know two NativeArray's will never alias, because we wrote the collection library, and we can use that knowledge in Burst, so it won't have to give up on an optimization because it's afraid two array pointers might point to the same memory.
 
-Similarly, we wrote the [Unity.Mathmetics](https://github.com/Unity-Technologies/Unity.Mathematics) math library. Burst has intimite knowledge of it. It will (in the future) be able to do accuracy sacrificing optimizations for things like math.sin(). Because to Burst math.sin() is not just any C# method to compile, it will understand the trigonometric properties of sin(), understand that sin(x) == x for small values of x (which Burst might be able to prove), understand it can be replaced by a taylor series expansion for a certain accuracy sacrifice.
+Similarly, we wrote the [Unity.Mathemetics](https://github.com/Unity-Technologies/Unity.Mathematics) math library. Burst has intimite knowledge of it. It will (in the future) be able to do accuracy sacrificing optimizations for things like math.sin(). Because to Burst math.sin() is not just any C# method to compile, it will understand the trigonometric properties of sin(), understand that sin(x) == x for small values of x (which Burst might be able to prove), understand it can be replaced by a taylor series expansion for a certain accuracy sacrifice.
 
 ## Distinction between engine code and game code dissapears
 
@@ -114,7 +115,7 @@ I expect many people will ([here's a user writing a physics engine](https://foru
 
 ## Join us
 
-Many game industry veterans (and non veterans) are unhappy with the status quo and decided to join us to make this a reality (Hi 
+Many game industry veterans (and non veterans) are unhappy with the status quo and decided to join us to make all the tech from this post a reality. (Hi 
 [@postgoodism](https://www.twitter.com/postgoodism), 
 [@xoofx](https://www.twitter.com/xoofx), 
 [@deplinenoise](https://www.twitter.com/deplinenoise), 
@@ -131,4 +132,4 @@ There are no comments on this website, but you can say hi on twitter [@lucasmeij
 
 Footnotes:
 
-- [Jonathan Blow](https://www.twitter.com/Jonathan_Blow) is working on a interesting language + compiler called Jai, sharing some motivation with unity: if I'm going to spend another 20 years making games, let's make sure we do it with tools I love using.
+- [Jonathan Blow](https://www.twitter.com/Jonathan_Blow) is working on an interesting language + compiler called Jai, sharing some motivation with unity: if I'm going to spend another 20 years making games, let's make sure we do it with tools I love using.
