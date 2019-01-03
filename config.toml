@@ -1,0 +1,4 @@
+baseURL = "http://lucasmeijer.com/"
+languageCode = "en-us"
+title = "Lucas' website"
+theme = "potato-dark"
