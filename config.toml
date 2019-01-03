@@ -1,4 +1,4 @@
-baseURL = "http://lucasmeijer.github.io.com"
+baseURL = "https://lucasmeijer.github.io"
 languageCode = "en-us"
 title = "Lucas' website"
 theme = "potato-dark"
