@@ -4,6 +4,8 @@ date: 2019-01-03T01:33:37+01:00
 comments: false
 ---
 
+*Updated post: fixed mike's twitter handle, replaced example of traffic system with example of path tracer*
+
 A lot has been [said] (https://youtu.be/rX0ItVEVjHc) and [written] (https://aras-p.info/blog/2018/12/28/Modern-C-Lamentations/)  lately about the game industry's "C++ is not changing into the thing we need" feelings. Valid criticism on various things that make C++ not a great language for games (or at all), and [valid counter criticism](https://medium.com/@pat_wilson/get-your-shit-together-6ccbfd6bb755) of "well why dont you guys participate in the open-for-everyone process of designing C++ instead of bitching from the sidelines".
 
 Let's talk about the place C++ will have at Unity:
@@ -48,9 +50,9 @@ I quite enjoy writing code in C# myself. However, traditional C# as a whole is n
 
 On top of that the standard library is oriented around "objects on the heap", and "objects having pointer references to other objects".
 
-That said, if we give up on the most of the standard library, (bye Linq, StringFormatter, List, Dictionary), disallow allocations (=no classes, only structs), no garbage collector, dissalow virtual calls and non-constrained interface invocations, and add a few new containers that you are allowed to use (NativeArray and friends) the remaining pieces of the C# language are looking really good. Remember this is only for your performance critical code. Here's an example from our [mega city demo](https://www.youtube.com/watch?v=j4rWfPyf-hk):
+That said, if we give up on the most of the standard library, (bye Linq, StringFormatter, List, Dictionary), disallow allocations (=no classes, only structs), no garbage collector, dissalow virtual calls and non-constrained interface invocations, and add a few new containers that you are allowed to use (NativeArray and friends) the remaining pieces of the C# language are looking really good. Remember this is only for your performance critical code. Here's an example from our [aras path tracer toy project](https://github.com/aras-p/ToyPathTracer):
 
-{{< gist lucasmeijer bb5ba6a73340566e9b7273a541d191de >}}
+{{< gist lucasmeijer 9239a3e7e24c56eae83b1ef906048a1e >}}
 
 This subset lets us comfortably do everything we need in our hot loops. Because it's a valid subset of C#, we can also run it as regular C# getting errors on out of bounds access, great error messages, debugger support and compilation speeds you forgot were possible when working in C++. We often refer to this subset as HighPerformanceC#, HPC#
 
