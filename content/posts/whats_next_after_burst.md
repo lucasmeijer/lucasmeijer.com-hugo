@@ -49,11 +49,11 @@ The datalayout ECS uses recognizes this is a super common pattern, and optimizes
 
 ECS groups entities by "the set of components they have". It calls such a set an archetype. An example of an archetype is:  "Position & Velocity & Rigidbody & Collider". ECS allocates memory in chunks of 16k. Each chunk will only contain entities of a single archetype.
 
-Instead of having the user component searching for other components to operate on at runtime, per orbit instance, an ECS component has to statically declare "I want to run some operations on all entities that have both a Velocity and a Rigidbody and an Orbit component. To find all those entities, we simply find all archetypes that match that "component search query". 
+Instead of having the user component searching for other components to operate on at runtime, per orbit instance, in ECS land you have to statically declare "I want to run some operations on all entities that have both a Velocity and a Rigidbody and an Orbit component. To find all those entities, we simply find all archetypes that match that "component search query". 
 Each archetype has a list of Chunks where entities of that archetype are stored. We loop over all those chunks, and inside each chunks, we're doing a linear loop of tightly packed memory, to read and write the component data.
 This linear loop that runs the same code on each entity also makes for a likely vectorization opportunity for burst.
 
-In many cases, this process can be trivially split up into several jobs, making the code for this ECS component run on nearly 100% core utilization.
+In many cases, this process can be trivially split up into several jobs, making the code operating the ECS component run on nearly 100% core utilization.
 
 ECS does all this work for you, you just need to supply the code that you want to run on each entity.
 (You can do the chunk iteration manually if you want to though.)
