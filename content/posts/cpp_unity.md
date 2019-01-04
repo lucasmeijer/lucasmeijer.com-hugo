@@ -50,7 +50,7 @@ I quite enjoy writing code in C# myself. However, traditional C# as a whole is n
 
 On top of that the standard library is oriented around "objects on the heap", and "objects having pointer references to other objects".
 
-That said, if we give up on the most of the standard library, (bye Linq, StringFormatter, List, Dictionary), disallow allocations (=no classes, only structs), no garbage collector, dissalow virtual calls and non-constrained interface invocations, and add a few new containers that you are allowed to use (NativeArray and friends) the remaining pieces of the C# language are looking really good. Remember this is only for your performance critical code. Here's an example from our [aras path tracer toy project](https://github.com/aras-p/ToyPathTracer):
+That said, if we give up on the most of the standard library, (bye Linq, StringFormatter, List, Dictionary), disallow allocations (=no classes, only structs), no garbage collector, dissalow virtual calls and non-constrained interface invocations, and add a few new containers that you are allowed to use (NativeArray and friends) the remaining pieces of the C# language are looking really good. Remember this is only for your performance critical code. Here's an example from [aras path tracer toy project](https://github.com/aras-p/ToyPathTracer):
 
 {{< gist lucasmeijer 9239a3e7e24c56eae83b1ef906048a1e >}}
 
