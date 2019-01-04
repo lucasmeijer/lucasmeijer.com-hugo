@@ -121,9 +121,9 @@ Many game industry veterans (and non veterans) are unhappy with the status quo a
 [@deplinenoise](https://www.twitter.com/deplinenoise), 
 [@icetigris](https://www.twitter.com/icetigris), 
 [@vvuk](https://www.twitter.com/vvuk),
-[@macton](https://www.twitter.com/macton),
+[@mike_acton](https://www.twitter.com/mike_acton),
 [@vengefularia](https://www.twitter.com/vengefularia),
-[@bmcnett](https://www.twitter.com/bmcnett)). If changing the status quo in langauge tools for game development is something you would also love to work on, we'd love to hear from you. Ping me [@lucasmeijer](https://www.twitter.com/lucasmeijer) or Mike Acton [@macton](https://www.twitter.com/macton) if you're interested.
+[@bmcnett](https://www.twitter.com/bmcnett)). If changing the status quo in language tools for game development is something you would also love to work on, we'd love to hear from you. Ping me [@lucasmeijer](https://www.twitter.com/lucasmeijer) or Mike Acton [@mike_acton](https://www.twitter.com/mike_acton) if you're interested.
 
 The future isn't going to build itself.
 
@@ -132,4 +132,5 @@ There are no comments on this website, but you can say hi on twitter [@lucasmeij
 
 Footnotes:
 
+- thank @aras_p for reviewing this post
 - [Jonathan Blow](https://www.twitter.com/Jonathan_Blow) is working on an interesting language + compiler called Jai, sharing some motivation with unity: if I'm going to spend another 20 years making games, let's make sure we do it with tools I love using.
