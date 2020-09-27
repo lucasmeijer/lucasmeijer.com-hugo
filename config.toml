@@ -48,9 +48,17 @@ copyright = "&copy;2018 Lucas Meijer"
         [[params.links.list1.link]]
             text = "Unite 2019 Copenhagen Keynote: DOTS"
             url = "https://youtu.be/r2UpIpBS_-s?t=1791"
+
+        [[params.links.list1.link]]
+            text = "GDC 2019 SF: LWRP"
+            url = "https://youtu.be/TY_krxdA5WY?t=3043"
+
         [[params.links.list1.link]]
             text = "Unite 2018 LA Keynote: Baymax Dreams"
             url = "https://youtu.be/alZ6wmwvck0?t=4722"
+        [[params.links.list1.link]]
+            text = "GDC 2018 SF: Photogrammatry"
+            url = "https://youtu.be/vGBBl7q3YmY?t=2659"
         [[params.links.list1.link]]
             text = "Unite 2018 Berlin Keynote: Book of the dead"
             url = "https://youtu.be/3omw9dLkrR8?t=3365"
@@ -60,12 +68,22 @@ copyright = "&copy;2018 Lucas Meijer"
         [[params.links.list1.link]]
             text = "Unite 2017 Seoul Keynote: Lighting"
             url = "https://youtu.be/S7bRLNLz0TA?list=PL412Ym60h6uuz4FqKqVot42Pr85J_NHlx&t=1452"      
+
+        [[params.links.list1.link]]
+            text = "GDC 2017 SF: Unity5.6"
+            url = "https://www.youtube.com/watch?v=YHweZ8dhOJA&feature=youtu.be&t=922" 
+
         [[params.links.list1.link]]
             text = "Unite 2017 Amsterdam Keynote: CookingShow"
             url = "https://youtu.be/-jZdMFPACpU?t=295"
         [[params.links.list1.link]]
             text = "Unite 2016 LA Keynote: Timeline"
             url = "https://youtu.be/h5iBcVYluRs?t=4264"
+
+        [[params.links.list1.link]]
+            text = "GDC 2016 SF: Adam"
+            url = "https://www.youtube.com/watch?v=eN3PsU_iA80&feature=youtu.be&t=801"
+
         [[params.links.list1.link]]
             text = "Unite 2016 Amsterdam Keynote: Unity 5"
             url = "https://youtu.be/jmTofDNJ3aI?t=1898"
