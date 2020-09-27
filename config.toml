@@ -1,39 +1,95 @@
 baseURL = "https://lucasmeijer.com"
 languageCode = "en-us"
-theme = "minimal"
+title = "lucasmeijer.com"
+
+# Site settings
+theme = "hugo-split-theme"
+disableKinds = ["section", "taxonomy", "taxonomyTerm", "RSS", "sitemap"]
+
+# Enter your tracking code to enable Google Analytics
+googleAnalytics = ""
+
+# Copyright
+copyright = "&copy;2018 Lucas Meijer"
 
 [params]
-    author = "Lucas Meijer"
-    description = "I'm @lucasmeijer. I work at Unity."
-    githubUsername = "lucasmeijer"
-    accent = "red"
-    showBorder = true
-    backgroundColor = "white"
-    font = "Raleway" # should match the name on Google Fonts!
-    highlight = true
-    highlightStyle = "solarized-dark"
-    highlightLanguages = ["go", "haskell", "kotlin", "scala", "swift", "c#"]
 
-[[menu.main]]
-    url = "/"
-    name = "Home"
-    weight = 1
+  # Metadata for search engines and social sharing
+  author = "Lucas Meijer"
+  description = "Lucas Meijer personal website"
+  shareImage = "images/social.jpg"
+  twitterHandle = "lucasmeijer"
 
-[[menu.main]]
-    url = "/posts/"
-    name = "Posts"
-    weight = 2
+  # Favicon
+  favicon = "favicon.ico"
 
-# Social icons to be shown on the right-hand side of the navigation bar
-# The "name" field should match the name of the icon to be used
-# The list of available icons can be found at http://fontawesome.io/icons/
+  # Section - Visual
+  [params.visual]
 
-[[menu.icon]]
-    url = "mailto:lucas@lucasmeijer.com"
-    name = "envelope-o"
-    weight = 1
+    # Image
+    [params.visual.image]
+      enable = true
+      file = "images/podium.jpg"
+      position = "center center"
 
-[[menu.icon]]
-    url = "https://twitter.com/lucasmeijer/"
-    name = "twitter"
-    weight = 2
+    # Video
+    [params.visual.video]
+      enable = false
+      mute = true
+      file = "videos/background.mp4"
+      # youtubeId = "dk9uNWPP7EA"
+
+  # Links
+  #
+  # Links List #1
+  [[params.links]]
+    [params.links.list1]
+      heading = "Public Presentations"
+        [[params.links.list1.link]]
+            text = "Unite 2019 Copenhagen Keynote: DOTS"
+            url = "https://youtu.be/r2UpIpBS_-s?t=1791"
+        [[params.links.list1.link]]
+            text = "Unite 2018 LA Keynote: Baymax Dreams"
+            url = "https://youtu.be/alZ6wmwvck0?t=4722"
+        [[params.links.list1.link]]
+            text = "Unite 2018 Berlin Keynote: Book of the dead"
+            url = "https://youtu.be/3omw9dLkrR8?t=3365"
+        [[params.links.list1.link]]
+            text = "Unite 2017 Austin Keynote: Neon"
+            url = "https://youtu.be/uEoS1mr9eqs?t=785"
+        [[params.links.list1.link]]
+            text = "Unite 2017 Seoul Keynote: Lighting"
+            url = "https://youtu.be/S7bRLNLz0TA?list=PL412Ym60h6uuz4FqKqVot42Pr85J_NHlx&t=1452"      
+        [[params.links.list1.link]]
+            text = "Unite 2017 Amsterdam Keynote: CookingShow"
+            url = "https://youtu.be/-jZdMFPACpU?t=295"
+        [[params.links.list1.link]]
+            text = "Unite 2016 LA Keynote: Timeline"
+            url = "https://youtu.be/h5iBcVYluRs?t=4264"
+        [[params.links.list1.link]]
+            text = "Unite 2016 Amsterdam Keynote: Unity 5"
+            url = "https://youtu.be/jmTofDNJ3aI?t=1898"
+        
+        [[params.links.list1.link]]
+            text = "Unite 2015 Boston Keynote: VR & 2D"
+            url = "https://youtu.be/i3i4OdPiQ-A?t=1054"
+        
+        [[params.links.list1.link]]
+            text = "Unite 2015 Amsterdam Keynote: Networking"
+            url = "https://youtu.be/63UaLA790iI?t=3246"
+        [[params.links.list1.link]]
+            text = "Unite 2014 Seattle Keynote: UI"
+            url = "https://youtu.be/5RZBxGexCuk?t=2187"
+        [[params.links.list1.link]]
+            text = "Unite 2013 Keynote Malmo: Unity4.2"
+            url = "https://youtu.be/QY-e2vdPdqE?t=1238  "
+        [[params.links.list1.link]]
+            text = "Unite 2011 Keynote SF: Flash Exporter"
+            url = "https://youtu.be/6qKwFukUE_Q?list=PLX2vGYjWbI0Q7HYmCTbZyMOTmb4R9RYrf&t=4021"
+ 
+  # The original template is released under the Creative Commons Attribution 3.0 License.
+  # Please keep the original attribution link when using for your own project.
+  # If you'd like to use the template without the attribution, you can check out
+  # the license option via the template author's website: https://onepagelove.com/split
+
+
